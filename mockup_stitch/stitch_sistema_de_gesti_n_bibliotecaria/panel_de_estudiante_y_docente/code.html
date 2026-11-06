@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-tertiary-container":"#4ac08f","on-error":"#ffffff","tertiary-fixed-dim":"#68dba9","primary-fixed":"#dce1ff","on-primary":"#ffffff","surface":"#f8f9ff","primary-fixed-dim":"#b6c4ff","error-container":"#ffdad6","primary":"#00236f","on-primary-fixed":"#00164e","on-primary-fixed-variant":"#264191","on-secondary-fixed-variant":"#003ea8","on-background":"#0b1c30","on-tertiary-fixed":"#002114","error":"#ba1a1a","inverse-surface":"#213145","on-tertiary":"#ffffff","tertiary-fixed":"#85f8c4","tertiary":"#003120","on-tertiary-fixed-variant":"#005137","surface-dim":"#cbdbf5","outline":"#757682","surface-container-high":"#dce9ff","inverse-primary":"#b6c4ff","surface-container-highest":"#d3e4fe","secondary":"#0051d5","secondary-fixed":"#dbe1ff","surface-tint":"#4059aa","on-surface":"#0b1c30","outline-variant":"#c5c5d3","on-secondary-fixed":"#00174b","on-error-container":"#93000a","on-secondary-container":"#fefcff","on-primary-container":"#90a8ff","surface-variant":"#d3e4fe","inverse-on-surface":"#eaf1ff","tertiary-container":"#004a32","secondary-container":"#316bf3","surface-bright":"#f8f9ff","on-surface-variant":"#444651","on-secondary":"#ffffff","surface-container-low":"#eff4ff","primary-container":"#1e3a8a","background":"#f8f9ff","surface-container":"#e5eeff","secondary-fixed-dim":"#b4c5ff","surface-container-lowest":"#ffffff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"gutter-desktop":"1.5rem","gutter":"1rem","space-xs":"0.25rem","space-lg":"1.5rem","space-md":"1rem","margin-tablet":"1.5rem","space-sm":"0.5rem","gutter-tablet":"1.5rem","space-xl":"2rem","margin":"1rem","margin-desktop":"2rem"},"fontFamily":{"headline-md":["Inter"],"body-md":["Inter"],"headline-lg-mobile":["Inter"],"label-lg":["Inter"],"display-lg":["Inter"],"headline-lg":["Inter"],"label-md":["Inter"],"code-catalog":["Inter"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-sm":["Inter"],"display-lg-mobile":["Inter"],"label-sm":["Inter"]},"fontSize":{"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"display-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"code-catalog":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"600"}],"display-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-shrink-0"><img alt="Logotipo Biblioteca Universitaria" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1ULWksB0xrEZKoS_gc-BxwYF5uKs6EoSAl-vqI3JD2aqvFowHvJWSgXu4E5c2GLQkMhZSHqg_nvvyjpv2PlnluGjO2zNJ8gdykKBXtRobHr1QDPRck2abOYrjgrXEsmZvwP_pHfkbYSZrDRA2VJtdtZU7IpmZjbXVHn2T8fsEHQcbo4UpAF81CssOE3tFs9_YEtnCiE-w0GLskNW4qJqGiPbRUd1VCIaD5UO7YMZGgQ"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary leading-tight font-bold tracking-tight">Biblioteca Universitaria</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Sistema Integrado de Recursos</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-bold rounded-lg shadow-sm"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="catalogo-general" href="#">Catálogo General</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="acceso-y-registro" href="#">Acceso y Registro</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="panel-de-estudiante-docente" href="#">Panel de Estudiante / Docente</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="gestion-bibliotecaria" href="#">Gestión Bibliotecaria</a></nav><div class="flex items-center gap-space-md flex-shrink-0"><div class="hidden lg:flex items-center p-space-xs bg-surface-container-low rounded-xl gap-space-xs"><button class="px-space-sm py-1 rounded font-label-sm text-label-sm bg-surface text-on-surface font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.05)]" type="button">Visitante</button><button class="px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" type="button">Estudiante</button><button class="px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" type="button">Docente</button><button class="px-space-sm py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" type="button">Bibliotecario</button></div><div class="flex items-center gap-space-sm pl-space-sm py-1"><div class="text-right hidden sm:flex flex-col"><div class="flex items-center justify-end gap-space-xs"><span class="font-label-md text-label-md text-on-surface font-semibold">Lic. Elena Montoya</span><span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed font-bold leading-none">Docente</span></div><span class="font-code-catalog text-code-catalog text-on-surface-variant">COD: DOC-94021</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiyDcgyCfp1T5GotghlChdfjOs0F0wvNh4fp12Vj6r0r6587S4_81w0_kOIjn97lrG4t9xYNsOm-88STot9QQjtJ8NwUF5H3zMHMBdazkNYBCk_WOobaBu_-hnRqGzRLl0lxZzm7CNWmLz3OfG_0KDJtPINdbeU2rwrnCb5f5C0byzx7VZjnlJqjp7UMQQJFmU7vh6DbcVPLPRNW9f_Pqrspuf2S-NgmIibyJ_13w"/></div></div></div><div class="h-8 w-full px-gutter-desktop bg-surface-container-low flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="inline-block w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span><span>Servicios Bibliotecarios Operativos y Préstamos Activos</span><span class="hidden md:inline text-outline-variant">|</span><span class="hidden md:inline font-code-catalog text-code-catalog">Sede Central & Campus Virtual</span></div><div class="flex items-center gap-space-md"><span class="hidden sm:inline font-code-catalog text-code-catalog">Período 2024-II</span><span>Hoy: 24 Octubre 2024</span></div></div></header><main class="w-full pt-28 bg-surface min-h-[calc(100vh-14rem)]"><div class="flex flex-col w-full">
+<div class="w-full px-gutter-desktop py-space-lg flex flex-col gap-space-lg max-w-[1440px] mx-auto">
+<!-- Header Dashboard Académico -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-16 h-16 rounded-full object-cover shadow-inner" data-alt="Professional portrait of a male university computer science student Carlos Mendoza in library ambient background with academic deep navy palette" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb3uUd8XmDTNQFaq0imb8Vk8-wn6ll3edHE1qKoefP66VMGoji6c88xMuOHGmdJlmCLkt5X1gLGHcDZ8Q-rE-xU0o_D6ZBjFpVydW2Hq3UH9Ne-ASQR5efbGWvZkOEi_qj_vE8UpxqcvbdFh6xbie80IswYcXCHFjwcbWEISTa3eDFWFJzlHMwkp4vnTxX10J3bGp1s_z_sSzcBvFNOI0OA40-all0hGcXB5FJrx0"/>
+<span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-on-tertiary-container ring-2 ring-surface-container-lowest"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight font-bold">Bienvenido, Carlos Eduardo Mendoza</h1>
+<span class="px-space-xs py-0.5 rounded font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed font-bold tracking-wide">ESTUDIANTE</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm mt-0.5">
+<span class="font-code-catalog text-code-catalog font-semibold text-primary">ID: EST001</span>
+<span>•</span>
+<span>Periodo Académico Ordinario 2024-II</span>
+<span>•</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-tertiary font-medium">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Afiliación Vigente
+            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md bg-surface-container-low px-space-md py-space-sm rounded-lg self-start lg:self-center">
+<div class="flex flex-col text-right">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Fecha del Sistema</span>
+<span class="font-code-catalog text-code-catalog font-bold text-on-surface" id="live-clock">24 Octubre 2024 • 10:42 AM</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-2xl">event_available</span>
+</div>
+</div>
+<!-- Ficha Resumen de la Cuenta (Card superior destacada) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Bloque 1: Datos del Titular -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Ficha de Matrícula</span>
+<span class="material-symbols-outlined text-outline-variant">badge</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-background font-bold mb-space-xs">Facultad de Ingeniería y Ciencias Básicas</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-md">Programa: <strong class="text-on-surface">Ingeniería de Sistemas</strong></p>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Nivel Cursado:</span>
+<span class="font-code-catalog text-code-catalog font-bold text-primary bg-surface-container-highest px-2 py-0.5 rounded">8vo Semestre</span>
+</div>
+</div>
+<!-- Bloque 2: Estado de Cuenta -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Estatus de Solvencia</span>
+<span class="material-symbols-outlined text-on-tertiary-container">verified</span>
+</div>
+<div class="p-space-md rounded-xl bg-tertiary/10 flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-on-tertiary-container text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-lg text-label-lg font-bold text-tertiary">Activo - Sin Sanciones</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Habilitado para retiro en sala, préstamo externo y reservas interbibliotecarias.</p>
+</div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm pt-space-xs">
+<span>Multas pendientes acumuladas:</span>
+<span class="font-code-catalog text-code-catalog font-bold text-on-surface">$0.00 COP</span>
+</div>
+</div>
+<!-- Bloque 3: Cupo de Préstamos Interactivo -->
+<div class="lg:col-span-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Capacidad de Préstamos</span>
+<!-- Modo Switch simulador de rol -->
+<div class="flex items-center bg-surface-container-high rounded p-0.5">
+<button class="px-2 py-0.5 font-label-sm text-label-sm rounded font-bold bg-primary text-on-primary shadow-sm transition-all" id="role-est-btn" onclick="setRoleView('estudiante')">Estudiante</button>
+<button class="px-2 py-0.5 font-label-sm text-label-sm rounded font-medium text-on-surface-variant hover:text-on-surface transition-all" id="role-doc-btn" onclick="setRoleView('docente')">Docente</button>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="flex justify-between items-baseline mb-space-xs">
+<span class="font-headline-sm text-headline-sm text-primary font-bold" id="quota-text">1 de 3 libros en uso</span>
+<span class="font-label-md text-label-md text-tertiary font-bold bg-tertiary-fixed px-2 py-0.5 rounded" id="available-text">2 disponibles</span>
+</div>
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full rounded-full transition-all duration-300" id="quota-progress-bar" style="width: 33.33%;"></div>
+</div>
+</div>
+</div>
+<!-- Alerta de tope máximo (dinámicamente alternable para demostración) -->
+<div class="mt-space-sm pt-space-xs">
+<div class="hidden p-space-xs px-space-sm rounded-lg bg-secondary-fixed/50 flex items-center gap-space-xs" id="quota-limit-alert">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-body-sm text-body-sm text-on-secondary-fixed font-medium">Tope máximo alcanzado. Devuelve un ejemplar para solicitar más títulos.</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm" id="quota-default-subtext">
+<span>Máximo permitido por estatuto académico</span>
+<button class="text-secondary underline font-semibold hover:text-primary" onclick="toggleMaxQuotaSimulation()">Simular Tope (3/3)</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Layout Dividido Principal: Tabla de Préstamos (2/3) y Sidebar de Reservas/Políticas (1/3) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Columna Principal: Préstamos Activos -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-md gap-space-xs">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">menu_book</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Préstamos Activos y Devoluciones</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Consulte las fechas improrrogables y gestione extensiones de plazo autorizadas.</p>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-2.5 py-1 rounded font-bold">Total: 3 préstamos</span>
+</div>
+</div>
+<!-- Tabla Responsive -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-space-sm px-space-md">Cód. Préstamo</th>
+<th class="py-space-sm px-space-md">Libro y Referencia</th>
+<th class="py-space-sm px-space-md">Retiro</th>
+<th class="py-space-sm px-space-md">Límite Devolución</th>
+<th class="py-space-sm px-space-md">Estado</th>
+<th class="py-space-sm px-space-md text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-none">
+<!-- Fila 1: Al día -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group">
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog font-bold text-primary">
+                    PREST-101
+                  </td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors line-clamp-1">Clean Code: A Handbook of Agile Software Craftsmanship</span>
+<span class="font-code-catalog text-code-catalog text-on-surface-variant">Robert C. Martin • <strong class="text-primary">LIB001</strong> • Sala Sistemas</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog text-on-surface-variant whitespace-nowrap">
+                    2026-10-20
+                  </td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex items-center gap-1 font-bold text-on-surface font-body-md text-body-md">
+<span class="material-symbols-outlined text-sm text-tertiary font-bold">schedule</span>
+<span>2026-10-28</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Al día (5 días)
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-primary text-on-primary hover:bg-secondary transition-colors font-semibold shadow-sm flex items-center gap-1" onclick="handleRenewal('PREST-101')">
+<span class="material-symbols-outlined text-sm">autorenew</span> Renovar (+8d)
+                      </button>
+<button class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-medium" onclick="handleReturnModal('PREST-101')">
+                        Devolver
+                      </button>
+</div>
+</td>
+</tr>
+<!-- Fila 2: Vence pronto -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group bg-surface-container-low/30">
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog font-bold text-primary">
+                    PREST-108
+                  </td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors line-clamp-1">Database System Concepts</span>
+<span class="font-code-catalog text-code-catalog text-on-surface-variant">Silberschatz, Korth, Sudarshan • <strong class="text-primary">LIB002</strong> • Col. General</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog text-on-surface-variant whitespace-nowrap">
+                    2026-10-17
+                  </td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex items-center gap-1 font-bold text-secondary font-body-md text-body-md">
+<span class="material-symbols-outlined text-sm text-secondary font-bold">alarm</span>
+<span>2026-10-25</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Vence mañana
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-primary text-on-primary hover:bg-secondary transition-colors font-semibold shadow-sm flex items-center gap-1" onclick="handleRenewal('PREST-108')">
+<span class="material-symbols-outlined text-sm">autorenew</span> Renovar (+8d)
+                      </button>
+<button class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-medium" onclick="handleReturnModal('PREST-108')">
+                        Devolver
+                      </button>
+</div>
+</td>
+</tr>
+<!-- Fila 3: Vencido Con Multa -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group bg-error-container/20">
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog font-bold text-error">
+                    PREST-094
+                  </td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-error transition-colors line-clamp-1">Sistemas Operativos Modernos</span>
+<span class="font-code-catalog text-code-catalog text-on-surface-variant">Andrew S. Tanenbaum • <strong class="text-error">LIB008</strong> • Reserva Central</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-code-catalog text-code-catalog text-on-surface-variant whitespace-nowrap">
+                    2026-10-10
+                  </td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex items-center gap-1 font-bold text-error font-body-md text-body-md">
+<span class="material-symbols-outlined text-sm text-error font-bold">warning</span>
+<span>2026-10-18</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded font-label-sm text-label-sm bg-error-container text-on-error-container font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Vencido ($3,000 COP)
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-space-xs">
+<span class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant font-medium cursor-not-allowed" title="No renovable por mora acumulada">
+                        Bloqueado
+                      </span>
+<button class="px-space-sm py-1.5 rounded font-label-sm text-label-sm bg-error text-on-error hover:bg-error/90 transition-colors font-semibold shadow-sm" onclick="handleReturnModal('PREST-094')">
+                        Devolver en Estación
+                      </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Notification feedback banner -->
+<div class="hidden mt-space-md p-space-sm rounded-lg bg-primary-fixed text-on-primary-fixed font-body-sm text-body-sm items-center justify-between" id="action-feedback">
+<span id="action-feedback-text"></span>
+<button class="material-symbols-outlined text-sm" onclick="document.getElementById('action-feedback').classList.add('hidden')">close</button>
+</div>
+</div>
+<!-- Banner Estilizado de Políticas de Biblioteca Universitaria -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm relative overflow-hidden">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-2xl">info</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Reglamento Institucional de Servicios Bibliotecarios</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Políticas y Deberes del Usuario Circulante</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mt-space-sm">
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1">
+<div class="flex items-center gap-1 text-primary font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-sm">date_range</span> Plazos de Préstamo
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong>8 días calendario</strong> para Estudiantes pregrado/posgrado. <strong>15 días calendario</strong> para Docentes e Investigadores.
+                  </p>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1">
+<div class="flex items-center gap-1 text-error font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-sm">attach_money</span> Política Sancionatoria
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong>$1,500 COP</strong> por cada día hábil de demora por ejemplar no reintegrado oportunamente a sala.
+                  </p>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1">
+<div class="flex items-center gap-1 text-tertiary font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-sm">lock_clock</span> Buzón 24/7 y Soporte
+                  </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    Buzón inteligente en Edificio Central para devolución fuera de horario. Soporte: <em>biblioteca@universidad.edu</em>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Columna Lateral: Reservas Activas y Resumen Gráfico -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Reservas Activas -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-xl">bookmark_added</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Reservas en Espera</h3>
+</div>
+<span class="px-2 py-0.5 rounded font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed font-bold">1 Solicitud</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Títulos reservados listos para asignación tras entrega previa.</p>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">Artificial Intelligence: A Modern Approach</span>
+<span class="font-code-catalog text-code-catalog text-on-surface-variant">Stuart Russell & Peter Norvig • LIB-AI-401</span>
+</div>
+<span class="px-2 py-0.5 rounded font-code-catalog text-code-catalog font-bold bg-primary text-on-primary whitespace-nowrap">Puesto #1</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-space-xs">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-tertiary-container">hourglass_top</span> Turno prioritario
+              </span>
+<span>Devolución esperada: <strong>26 Oct</strong></span>
+</div>
+<button class="mt-space-xs w-full py-1.5 rounded font-label-sm text-label-sm bg-surface-container-high text-on-surface hover:text-error hover:bg-error-container/40 transition-colors font-semibold" onclick="cancelReservationAlert()">
+              Cancelar Reserva
+            </button>
+</div>
+</div>
+<!-- Mosaico Gráfico de Actividad de Lectura -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Lecturas del Semestre</h3>
+<span class="font-code-catalog text-code-catalog text-on-surface-variant">2024-II</span>
+</div>
+<!-- Inline SVG Progress Radial / Sparkline -->
+<div class="flex items-center justify-between bg-surface-container-low p-space-md rounded-xl">
+<div class="flex flex-col">
+<span class="font-display-lg text-display-lg text-primary font-extrabold leading-none">14</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-1">Libros consultados este año</span>
+<span class="font-label-sm text-label-sm text-tertiary font-bold mt-0.5">+4 vs semestre anterior</span>
+</div>
+<div class="relative w-20 h-20 flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm font-bold text-primary">75%</span>
+<span class="text-[9px] uppercase tracking-tighter text-on-surface-variant">Meta</span>
+</div>
+</div>
+</div>
+<!-- Recomendación Rápida con Imagen -->
+<div class="flex gap-space-sm items-center bg-surface-container-high/40 p-space-sm rounded-lg">
+<img class="w-12 h-16 object-cover rounded shadow-sm flex-shrink-0" data-alt="Cover illustration of an advanced algorithm design textbook with academic navy geometric abstract patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoxxpovgdPyTHpd6dg4UCsHVqcPKsbe4vVZX1SLBlNftlBFGLoo1X9rjjvbhzfc_BatreGJAR64sWN8w9da4N14tkrJ5MQBaALQJFxuK0CklaK-6wdLKqnmXbqj1F9fxekArBnpUr1rmZgfog7kfV7FipF84e4X-jU6-4FAU6NEoMEWQ2gI4FGhz901qUi3fhcr3gJ-3MDssxAYuzFDIJ_ug3BPMSgiDHuZe_nhJE"/>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Recomendado para ti</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Introduction to Algorithms (CLRS)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Disponible en Sede Norte</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let isMaxSimulated = false;
+  let currentRole = 'estudiante';
+
+  function setRoleView(role) {
+    currentRole = role;
+    const estBtn = document.getElementById('role-est-btn');
+    const docBtn = document.getElementById('role-doc-btn');
+    const quotaText = document.getElementById('quota-text');
+    const availableText = document.getElementById('available-text');
+    const progressBar = document.getElementById('quota-progress-bar');
+    const limitAlert = document.getElementById('quota-limit-alert');
+
+    // Desactivar simulación de tope forzado si se cambia rol
+    isMaxSimulated = false;
+    limitAlert.classList.add('hidden');
+
+    if (role === 'estudiante') {
+      estBtn.className = 'px-2 py-0.5 font-label-sm text-label-sm rounded font-bold bg-primary text-on-primary shadow-sm transition-all';
+      docBtn.className = 'px-2 py-0.5 font-label-sm text-label-sm rounded font-medium text-on-surface-variant hover:text-on-surface transition-all';
+      
+      quotaText.innerText = '1 de 3 libros en uso';
+      availableText.innerText = '2 disponibles';
+      availableText.className = 'font-label-md text-label-md text-tertiary font-bold bg-tertiary-fixed px-2 py-0.5 rounded';
+      progressBar.style.width = '33.33%';
+      progressBar.className = 'bg-on-tertiary-container h-full rounded-full transition-all duration-300';
+    } else {
+      docBtn.className = 'px-2 py-0.5 font-label-sm text-label-sm rounded font-bold bg-primary text-on-primary shadow-sm transition-all';
+      estBtn.className = 'px-2 py-0.5 font-label-sm text-label-sm rounded font-medium text-on-surface-variant hover:text-on-surface transition-all';
+      
+      quotaText.innerText = '2 de 5 libros en uso';
+      availableText.innerText = '3 disponibles';
+      availableText.className = 'font-label-md text-label-md text-tertiary font-bold bg-tertiary-fixed px-2 py-0.5 rounded';
+      progressBar.style.width = '40%';
+      progressBar.className = 'bg-secondary h-full rounded-full transition-all duration-300';
+    }
+  }
+
+  function toggleMaxQuotaSimulation() {
+    isMaxSimulated = !isMaxSimulated;
+    const quotaText = document.getElementById('quota-text');
+    const availableText = document.getElementById('available-text');
+    const progressBar = document.getElementById('quota-progress-bar');
+    const limitAlert = document.getElementById('quota-limit-alert');
+
+    if (isMaxSimulated) {
+      quotaText.innerText = '3 de 3 libros en uso';
+      availableText.innerText = '0 disponibles';
+      availableText.className = 'font-label-md text-label-md text-error font-bold bg-error-container px-2 py-0.5 rounded';
+      progressBar.style.width = '100%';
+      progressBar.className = 'bg-secondary-container h-full rounded-full transition-all duration-300';
+      limitAlert.classList.remove('hidden');
+    } else {
+      setRoleView(currentRole);
+    }
+  }
+
+  function handleRenewal(loanId) {
+    const feedback = document.getElementById('action-feedback');
+    const feedbackText = document.getElementById('action-feedback-text');
+    feedbackText.innerText = 'Solicitud de renovación tramitada para ' + loanId + '. Nuevo vencimiento extendido por 8 días hábiles.';
+    feedback.classList.remove('hidden');
+    feedback.classList.add('flex');
+  }
+
+  function handleReturnModal(loanId) {
+    const feedback = document.getElementById('action-feedback');
+    const feedbackText = document.getElementById('action-feedback-text');
+    feedbackText.innerText = 'Código QR de retorno generado para ' + loanId + '. Acérquese a la Estación de Autopréstamo Edificio Central.';
+    feedback.classList.remove('hidden');
+    feedback.classList.add('flex');
+  }
+
+  function cancelReservationAlert() {
+    const feedback = document.getElementById('action-feedback');
+    const feedbackText = document.getElementById('action-feedback-text');
+    feedbackText.innerText = 'Reserva de "Artificial Intelligence" cancelada. Tu cupo ha sido reasignado al siguiente usuario en lista.';
+    feedback.classList.remove('hidden');
+    feedback.classList.add('flex');
+  }
+</script></main><footer class="w-full bg-surface-container-low text-on-surface-variant py-space-xl mt-space-xl shadow-[0_-1px_6px_rgba(0,0,0,0.02)]"><div class="w-full px-gutter-desktop flex flex-col md:flex-row justify-between items-start md:items-center gap-space-lg mb-space-lg"><div class="space-y-space-xs"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary">local_library</span><span class="font-headline-sm text-headline-sm text-primary font-bold">Biblioteca Universitaria Institucional</span></div><p class="font-body-sm text-body-sm max-w-md">Comprometidos con la excelencia académica, la investigación científica y el libre acceso a la información y colecciones documentales.</p></div><div class="flex flex-wrap gap-space-lg font-label-md text-label-md"><a class="hover:text-primary transition-colors" href="#">Políticas de Préstamo</a><a class="hover:text-primary transition-colors" href="#">Reglamento de Sala</a><a class="hover:text-primary transition-colors" href="#">Soporte Campus Digital</a><a class="hover:text-primary transition-colors" href="#">Horario: Lun-Sáb 07:00 a 21:00</a></div></div><div class="w-full px-gutter-desktop pt-space-md flex flex-col sm:flex-row justify-between items-center gap-space-sm font-body-sm text-body-sm text-on-surface-variant/80"><p>© 2024 Red de Bibliotecas Universitarias y Repositorio Institucional. Todos los derechos reservados.</p><p class="font-code-catalog text-code-catalog">v4.2.0-core</p></div></footer></body></html>

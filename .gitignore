@@ -1,0 +1,10 @@
+.env
+__pycache__/
+instance/
+venv/
+*.pyc
+node_modules/
+cypress/videos/
+cypress/screenshots/
+.pytest_cache/
+

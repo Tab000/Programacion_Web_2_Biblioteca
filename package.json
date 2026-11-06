@@ -1,0 +1,13 @@
+{
+  "name": "biblioteca-universitaria-tests",
+  "version": "1.0.0",
+  "description": "Suite de pruebas automatizadas E2E y de API para Biblioteca Universitaria con Cypress y OpenAPI",
+  "scripts": {
+    "test": "cypress run",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.17.0"
+  }
+}

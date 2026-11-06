@@ -1,0 +1,5377 @@
+openapi: 3.0.3
+info:
+  title: API REST Biblioteca Universitaria
+  description: 'Contrato formal OpenAPI 3.0.3 de la API REST para el Sistema de Biblioteca
+    Universitaria.
+
+    Documenta exhaustivamente los 19 modulos del sistema (CRUD completo), los servicios
+    de autenticacion
+
+    con JWT (RBAC: Estudiante/Usuario y Bibliotecario/Administrador), métricas de
+    caché en memoria y disponibilidad.'
+  version: 1.0.0
+  contact:
+    name: Soporte Plataforma Biblioteca
+    email: biblioteca@universidad.edu.co
+servers:
+- url: http://127.0.0.1:5000
+  description: Servidor Local (127.0.0.1:5000)
+- url: http://localhost:5000
+  description: Servidor Local (localhost:5000)
+- url: /
+  description: Servidor Relativo Actual
+tags:
+- name: Autenticación
+  description: Endpoints para registro, inicio de sesión y gestión de perfil
+- name: Paises
+  description: Gestión de países de procedencia y nacionalidades
+- name: Idiomas
+  description: Catálogo de idiomas de los libros
+- name: Editoriales
+  description: Gestión de editoriales de libros
+- name: Estados Físicos
+  description: Catálogo de condiciones físicas de libros
+- name: Facultades
+  description: Facultades y dependencias universitarias
+- name: Tipos de Usuario
+  description: Roles y clasificaciones de usuarios (estudiante, docente, etc.)
+- name: Turnos
+  description: Turnos de trabajo de bibliotecarios
+- name: Estados de Reserva
+  description: Estados del ciclo de vida de reservas
+- name: Estados de Préstamo
+  description: Estados del ciclo de vida de préstamos
+- name: Ciudades
+  description: Catálogo de ciudades de residencia
+- name: Categorías
+  description: Clasificación temática y áreas del conocimiento
+- name: Autores
+  description: Autores de obras literarias y académicas
+- name: Bibliotecarios
+  description: Personal administrativo y gestión de accesos
+- name: Libros
+  description: Catálogo de libros y control de acervo
+- name: Usuarios
+  description: Gestión de lectores y estudiantes universitarios
+- name: Direcciones
+  description: Direcciones de residencia de usuarios
+- name: Historial de Ubicaciones
+  description: Trazabilidad de estanterías y ubicaciones de libros
+- name: Reservas
+  description: Control de reservas y cola de espera de libros
+- name: Préstamos
+  description: Control de préstamos, plazos, renovaciones y multas
+- name: Caché
+  description: Monitoreo y administración de la caché en memoria
+paths:
+  /api/auth/registro:
+    post:
+      tags:
+      - Autenticación
+      summary: Registrar nuevo usuario/estudiante
+      description: Crea una nueva cuenta de estudiante/usuario con contraseña cifrada
+        y retorna token JWT.
+      operationId: authRegistrarUsuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroUsuarioRequest'
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos incompletos o usuario ya existente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/registro-bibliotecario:
+    post:
+      tags:
+      - Autenticación
+      summary: Registrar nuevo bibliotecario
+      description: Crea un nuevo bibliotecario con privilegios de administración.
+      operationId: authRegistrarBibliotecario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroBibliotecarioRequest'
+      responses:
+        '201':
+          description: Bibliotecario registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/opciones-registro:
+    get:
+      tags:
+      - Autenticación
+      summary: Opciones de catálogo para registro
+      description: Obtiene listas de tipos de usuario, facultades y turnos para alimentar
+        formularios.
+      operationId: authOpcionesRegistro
+      responses:
+        '200':
+          description: Opciones disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpcionesRegistroResponse'
+  /api/auth/login:
+    post:
+      tags:
+      - Autenticación
+      summary: Iniciar sesión (Estudiante o Bibliotecario)
+      description: Valida credenciales por Email o Código y retorna token JWT de acceso.
+      operationId: authLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/login-bibliotecario:
+    post:
+      tags:
+      - Autenticación
+      summary: Iniciar sesión exclusivo para bibliotecarios
+      description: Verifica credenciales asegurando que pertenezcan a la tabla bibliotecario.
+      operationId: authLoginBibliotecario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales inválidas o no es bibliotecario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/perfil:
+    get:
+      tags:
+      - Autenticación
+      summary: Consultar perfil del usuario autenticado
+      description: Retorna información detallada del usuario o bibliotecario a partir
+        del token JWT.
+      operationId: authPerfil
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario autenticado
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cache/stats:
+    get:
+      tags:
+      - Caché
+      summary: Estadísticas y rendimiento del caché
+      description: Retorna métricas de aciertos (HIT), fallos (MISS), tasa de efectividad
+        y llaves activas.
+      operationId: cacheStats
+      responses:
+        '200':
+          description: Métricas del caché
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheStats'
+  /api/cache/clear:
+    post:
+      tags:
+      - Caché
+      summary: Vaciar caché en memoria
+      description: Invalida todas las claves cacheadas. Requiere rol de bibliotecario.
+      operationId: cacheClear
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Caché vaciado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/paises:
+    get:
+      tags:
+      - Paises
+      summary: Listar Paises
+      description: Retorna el catálogo completo de Paises.
+      operationId: listar_paises
+      responses:
+        '200':
+          description: Listado de Paises
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaPaisResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Paises
+      summary: Crear pais
+      description: Registra un nuevo registro en Paises. Requiere rol de bibliotecario.
+      operationId: crear_pais
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaisInput'
+      responses:
+        '201':
+          description: Paises creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaisResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/paises/{id_pais}:
+    get:
+      tags:
+      - Paises
+      summary: Obtener pais por identificador
+      description: Consulta los detalles de un registro específico de Paises mediante
+        su clave primaria.
+      operationId: obtener_pais
+      parameters:
+      - name: id_pais
+        in: path
+        required: true
+        description: Identificador (id_pais) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaisResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Paises
+      summary: Actualizar pais
+      description: Actualiza los datos de un registro en Paises. Requiere rol de bibliotecario.
+      operationId: actualizar_pais
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_pais
+        in: path
+        required: true
+        description: Identificador (id_pais) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaisInput'
+      responses:
+        '200':
+          description: Paises actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaisResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Paises
+      summary: Eliminar pais
+      description: Elimina el registro de Paises si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_pais
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_pais
+        in: path
+        required: true
+        description: Identificador (id_pais) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Paises eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/idiomas:
+    get:
+      tags:
+      - Idiomas
+      summary: Listar Idiomas
+      description: Retorna el catálogo completo de Idiomas.
+      operationId: listar_idiomas
+      responses:
+        '200':
+          description: Listado de Idiomas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaIdiomaResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Idiomas
+      summary: Crear idioma
+      description: Registra un nuevo registro en Idiomas. Requiere rol de bibliotecario.
+      operationId: crear_idioma
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdiomaInput'
+      responses:
+        '201':
+          description: Idiomas creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdiomaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/idiomas/{id_idioma}:
+    get:
+      tags:
+      - Idiomas
+      summary: Obtener idioma por identificador
+      description: Consulta los detalles de un registro específico de Idiomas mediante
+        su clave primaria.
+      operationId: obtener_idioma
+      parameters:
+      - name: id_idioma
+        in: path
+        required: true
+        description: Identificador (id_idioma) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdiomaResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Idiomas
+      summary: Actualizar idioma
+      description: Actualiza los datos de un registro en Idiomas. Requiere rol de
+        bibliotecario.
+      operationId: actualizar_idioma
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_idioma
+        in: path
+        required: true
+        description: Identificador (id_idioma) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdiomaInput'
+      responses:
+        '200':
+          description: Idiomas actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdiomaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Idiomas
+      summary: Eliminar idioma
+      description: Elimina el registro de Idiomas si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_idioma
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_idioma
+        in: path
+        required: true
+        description: Identificador (id_idioma) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Idiomas eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/editoriales:
+    get:
+      tags:
+      - Editoriales
+      summary: Listar Editoriales
+      description: Retorna el catálogo completo de Editoriales.
+      operationId: listar_editoriales
+      responses:
+        '200':
+          description: Listado de Editoriales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaEditorialResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Editoriales
+      summary: Crear editorial
+      description: Registra un nuevo registro en Editoriales. Requiere rol de bibliotecario.
+      operationId: crear_editorial
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditorialInput'
+      responses:
+        '201':
+          description: Editoriales creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditorialResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/editoriales/{id_editorial}:
+    get:
+      tags:
+      - Editoriales
+      summary: Obtener editorial por identificador
+      description: Consulta los detalles de un registro específico de Editoriales
+        mediante su clave primaria.
+      operationId: obtener_editorial
+      parameters:
+      - name: id_editorial
+        in: path
+        required: true
+        description: Identificador (id_editorial) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditorialResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Editoriales
+      summary: Actualizar editorial
+      description: Actualiza los datos de un registro en Editoriales. Requiere rol
+        de bibliotecario.
+      operationId: actualizar_editorial
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_editorial
+        in: path
+        required: true
+        description: Identificador (id_editorial) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditorialInput'
+      responses:
+        '200':
+          description: Editoriales actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditorialResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Editoriales
+      summary: Eliminar editorial
+      description: Elimina el registro de Editoriales si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_editorial
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_editorial
+        in: path
+        required: true
+        description: Identificador (id_editorial) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Editoriales eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-fisicos:
+    get:
+      tags:
+      - Estados Físicos
+      summary: Listar Estados Físicos
+      description: Retorna el catálogo completo de Estados Físicos.
+      operationId: listar_estados_fisicos
+      responses:
+        '200':
+          description: Listado de Estados Físicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaEstadoFisicoResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Estados Físicos
+      summary: Crear estado fisico
+      description: Registra un nuevo registro en Estados Físicos. Requiere rol de
+        bibliotecario.
+      operationId: crear_estado_fisico
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoFisicoInput'
+      responses:
+        '201':
+          description: Estados Físicos creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoFisicoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-fisicos/{id_estado_fisico}:
+    get:
+      tags:
+      - Estados Físicos
+      summary: Obtener estado fisico por identificador
+      description: Consulta los detalles de un registro específico de Estados Físicos
+        mediante su clave primaria.
+      operationId: obtener_estado_fisico
+      parameters:
+      - name: id_estado_fisico
+        in: path
+        required: true
+        description: Identificador (id_estado_fisico) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoFisicoResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Estados Físicos
+      summary: Actualizar estado fisico
+      description: Actualiza los datos de un registro en Estados Físicos. Requiere
+        rol de bibliotecario.
+      operationId: actualizar_estado_fisico
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_fisico
+        in: path
+        required: true
+        description: Identificador (id_estado_fisico) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoFisicoInput'
+      responses:
+        '200':
+          description: Estados Físicos actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoFisicoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Estados Físicos
+      summary: Eliminar estado fisico
+      description: Elimina el registro de Estados Físicos si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_estado_fisico
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_fisico
+        in: path
+        required: true
+        description: Identificador (id_estado_fisico) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Estados Físicos eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/facultades:
+    get:
+      tags:
+      - Facultades
+      summary: Listar Facultades
+      description: Retorna el catálogo completo de Facultades.
+      operationId: listar_facultades
+      responses:
+        '200':
+          description: Listado de Facultades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaFacultadResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Facultades
+      summary: Crear facultad
+      description: Registra un nuevo registro en Facultades. Requiere rol de bibliotecario.
+      operationId: crear_facultad
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultadInput'
+      responses:
+        '201':
+          description: Facultades creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultadResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/facultades/{id_facultad}:
+    get:
+      tags:
+      - Facultades
+      summary: Obtener facultad por identificador
+      description: Consulta los detalles de un registro específico de Facultades mediante
+        su clave primaria.
+      operationId: obtener_facultad
+      parameters:
+      - name: id_facultad
+        in: path
+        required: true
+        description: Identificador (id_facultad) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultadResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Facultades
+      summary: Actualizar facultad
+      description: Actualiza los datos de un registro en Facultades. Requiere rol
+        de bibliotecario.
+      operationId: actualizar_facultad
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_facultad
+        in: path
+        required: true
+        description: Identificador (id_facultad) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultadInput'
+      responses:
+        '200':
+          description: Facultades actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultadResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Facultades
+      summary: Eliminar facultad
+      description: Elimina el registro de Facultades si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_facultad
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_facultad
+        in: path
+        required: true
+        description: Identificador (id_facultad) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Facultades eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/tipos-usuario:
+    get:
+      tags:
+      - Tipos de Usuario
+      summary: Listar Tipos de Usuario
+      description: Retorna el catálogo completo de Tipos de Usuario.
+      operationId: listar_tipos_usuario
+      responses:
+        '200':
+          description: Listado de Tipos de Usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaTipoUsuarioResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Tipos de Usuario
+      summary: Crear tipo usuario
+      description: Registra un nuevo registro en Tipos de Usuario. Requiere rol de
+        bibliotecario.
+      operationId: crear_tipo_usuario
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoUsuarioInput'
+      responses:
+        '201':
+          description: Tipos de Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoUsuarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/tipos-usuario/{id_tipo_usuario}:
+    get:
+      tags:
+      - Tipos de Usuario
+      summary: Obtener tipo usuario por identificador
+      description: Consulta los detalles de un registro específico de Tipos de Usuario
+        mediante su clave primaria.
+      operationId: obtener_tipo_usuario
+      parameters:
+      - name: id_tipo_usuario
+        in: path
+        required: true
+        description: Identificador (id_tipo_usuario) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoUsuarioResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Tipos de Usuario
+      summary: Actualizar tipo usuario
+      description: Actualiza los datos de un registro en Tipos de Usuario. Requiere
+        rol de bibliotecario.
+      operationId: actualizar_tipo_usuario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_tipo_usuario
+        in: path
+        required: true
+        description: Identificador (id_tipo_usuario) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoUsuarioInput'
+      responses:
+        '200':
+          description: Tipos de Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoUsuarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Tipos de Usuario
+      summary: Eliminar tipo usuario
+      description: Elimina el registro de Tipos de Usuario si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_tipo_usuario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_tipo_usuario
+        in: path
+        required: true
+        description: Identificador (id_tipo_usuario) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Tipos de Usuario eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/turnos:
+    get:
+      tags:
+      - Turnos
+      summary: Listar Turnos
+      description: Retorna el catálogo completo de Turnos.
+      operationId: listar_turnos
+      responses:
+        '200':
+          description: Listado de Turnos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaTurnoResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Turnos
+      summary: Crear turno
+      description: Registra un nuevo registro en Turnos. Requiere rol de bibliotecario.
+      operationId: crear_turno
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnoInput'
+      responses:
+        '201':
+          description: Turnos creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/turnos/{id_turno}:
+    get:
+      tags:
+      - Turnos
+      summary: Obtener turno por identificador
+      description: Consulta los detalles de un registro específico de Turnos mediante
+        su clave primaria.
+      operationId: obtener_turno
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        description: Identificador (id_turno) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnoResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Turnos
+      summary: Actualizar turno
+      description: Actualiza los datos de un registro en Turnos. Requiere rol de bibliotecario.
+      operationId: actualizar_turno
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        description: Identificador (id_turno) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnoInput'
+      responses:
+        '200':
+          description: Turnos actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Turnos
+      summary: Eliminar turno
+      description: Elimina el registro de Turnos si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_turno
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_turno
+        in: path
+        required: true
+        description: Identificador (id_turno) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Turnos eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-reserva:
+    get:
+      tags:
+      - Estados de Reserva
+      summary: Listar Estados de Reserva
+      description: Retorna el catálogo completo de Estados de Reserva.
+      operationId: listar_estados_reserva
+      responses:
+        '200':
+          description: Listado de Estados de Reserva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaEstadoReservaResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Estados de Reserva
+      summary: Crear estado reserva
+      description: Registra un nuevo registro en Estados de Reserva. Requiere rol
+        de bibliotecario.
+      operationId: crear_estado_reserva
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoReservaInput'
+      responses:
+        '201':
+          description: Estados de Reserva creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoReservaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-reserva/{id_estado_reserva}:
+    get:
+      tags:
+      - Estados de Reserva
+      summary: Obtener estado reserva por identificador
+      description: Consulta los detalles de un registro específico de Estados de Reserva
+        mediante su clave primaria.
+      operationId: obtener_estado_reserva
+      parameters:
+      - name: id_estado_reserva
+        in: path
+        required: true
+        description: Identificador (id_estado_reserva) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoReservaResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Estados de Reserva
+      summary: Actualizar estado reserva
+      description: Actualiza los datos de un registro en Estados de Reserva. Requiere
+        rol de bibliotecario.
+      operationId: actualizar_estado_reserva
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_reserva
+        in: path
+        required: true
+        description: Identificador (id_estado_reserva) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoReservaInput'
+      responses:
+        '200':
+          description: Estados de Reserva actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoReservaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Estados de Reserva
+      summary: Eliminar estado reserva
+      description: Elimina el registro de Estados de Reserva si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_estado_reserva
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_reserva
+        in: path
+        required: true
+        description: Identificador (id_estado_reserva) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Estados de Reserva eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-prestamo:
+    get:
+      tags:
+      - Estados de Préstamo
+      summary: Listar Estados de Préstamo
+      description: Retorna el catálogo completo de Estados de Préstamo.
+      operationId: listar_estados_prestamo
+      responses:
+        '200':
+          description: Listado de Estados de Préstamo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaEstadoPrestamoResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Estados de Préstamo
+      summary: Crear estado prestamo
+      description: Registra un nuevo registro en Estados de Préstamo. Requiere rol
+        de bibliotecario.
+      operationId: crear_estado_prestamo
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoPrestamoInput'
+      responses:
+        '201':
+          description: Estados de Préstamo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoPrestamoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/estados-prestamo/{id_estado_prestamo}:
+    get:
+      tags:
+      - Estados de Préstamo
+      summary: Obtener estado prestamo por identificador
+      description: Consulta los detalles de un registro específico de Estados de Préstamo
+        mediante su clave primaria.
+      operationId: obtener_estado_prestamo
+      parameters:
+      - name: id_estado_prestamo
+        in: path
+        required: true
+        description: Identificador (id_estado_prestamo) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoPrestamoResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Estados de Préstamo
+      summary: Actualizar estado prestamo
+      description: Actualiza los datos de un registro en Estados de Préstamo. Requiere
+        rol de bibliotecario.
+      operationId: actualizar_estado_prestamo
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_prestamo
+        in: path
+        required: true
+        description: Identificador (id_estado_prestamo) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoPrestamoInput'
+      responses:
+        '200':
+          description: Estados de Préstamo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadoPrestamoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Estados de Préstamo
+      summary: Eliminar estado prestamo
+      description: Elimina el registro de Estados de Préstamo si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_estado_prestamo
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_estado_prestamo
+        in: path
+        required: true
+        description: Identificador (id_estado_prestamo) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Estados de Préstamo eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/ciudades:
+    get:
+      tags:
+      - Ciudades
+      summary: Listar Ciudades
+      description: Retorna el catálogo completo de Ciudades.
+      operationId: listar_ciudades
+      responses:
+        '200':
+          description: Listado de Ciudades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaCiudadResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Ciudades
+      summary: Crear ciudad
+      description: Registra un nuevo registro en Ciudades. Requiere rol de bibliotecario.
+      operationId: crear_ciudad
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CiudadInput'
+      responses:
+        '201':
+          description: Ciudades creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CiudadResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/ciudades/{id_ciudad}:
+    get:
+      tags:
+      - Ciudades
+      summary: Obtener ciudad por identificador
+      description: Consulta los detalles de un registro específico de Ciudades mediante
+        su clave primaria.
+      operationId: obtener_ciudad
+      parameters:
+      - name: id_ciudad
+        in: path
+        required: true
+        description: Identificador (id_ciudad) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CiudadResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Ciudades
+      summary: Actualizar ciudad
+      description: Actualiza los datos de un registro en Ciudades. Requiere rol de
+        bibliotecario.
+      operationId: actualizar_ciudad
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_ciudad
+        in: path
+        required: true
+        description: Identificador (id_ciudad) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CiudadInput'
+      responses:
+        '200':
+          description: Ciudades actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CiudadResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Ciudades
+      summary: Eliminar ciudad
+      description: Elimina el registro de Ciudades si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_ciudad
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_ciudad
+        in: path
+        required: true
+        description: Identificador (id_ciudad) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Ciudades eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/categorias:
+    get:
+      tags:
+      - Categorías
+      summary: Listar Categorías
+      description: Retorna el catálogo completo de Categorías.
+      operationId: listar_categorias
+      responses:
+        '200':
+          description: Listado de Categorías
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaCategoriaResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Categorías
+      summary: Crear categoria
+      description: Registra un nuevo registro en Categorías. Requiere rol de bibliotecario.
+      operationId: crear_categoria
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '201':
+          description: Categorías creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/categorias/{id_categoria}:
+    get:
+      tags:
+      - Categorías
+      summary: Obtener categoria por identificador
+      description: Consulta los detalles de un registro específico de Categorías mediante
+        su clave primaria.
+      operationId: obtener_categoria
+      parameters:
+      - name: id_categoria
+        in: path
+        required: true
+        description: Identificador (id_categoria) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Categorías
+      summary: Actualizar categoria
+      description: Actualiza los datos de un registro en Categorías. Requiere rol
+        de bibliotecario.
+      operationId: actualizar_categoria
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_categoria
+        in: path
+        required: true
+        description: Identificador (id_categoria) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '200':
+          description: Categorías actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Categorías
+      summary: Eliminar categoria
+      description: Elimina el registro de Categorías si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_categoria
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_categoria
+        in: path
+        required: true
+        description: Identificador (id_categoria) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Categorías eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/autores:
+    get:
+      tags:
+      - Autores
+      summary: Listar Autores
+      description: Retorna el catálogo completo de Autores.
+      operationId: listar_autores
+      responses:
+        '200':
+          description: Listado de Autores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaAutorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Autores
+      summary: Crear autor
+      description: Registra un nuevo registro en Autores. Requiere rol de bibliotecario.
+      operationId: crear_autor
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutorInput'
+      responses:
+        '201':
+          description: Autores creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutorResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/autores/{id_autor}:
+    get:
+      tags:
+      - Autores
+      summary: Obtener autor por identificador
+      description: Consulta los detalles de un registro específico de Autores mediante
+        su clave primaria.
+      operationId: obtener_autor
+      parameters:
+      - name: id_autor
+        in: path
+        required: true
+        description: Identificador (id_autor) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutorResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Autores
+      summary: Actualizar autor
+      description: Actualiza los datos de un registro en Autores. Requiere rol de
+        bibliotecario.
+      operationId: actualizar_autor
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_autor
+        in: path
+        required: true
+        description: Identificador (id_autor) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutorInput'
+      responses:
+        '200':
+          description: Autores actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutorResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Autores
+      summary: Eliminar autor
+      description: Elimina el registro de Autores si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_autor
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_autor
+        in: path
+        required: true
+        description: Identificador (id_autor) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Autores eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bibliotecarios:
+    get:
+      tags:
+      - Bibliotecarios
+      summary: Listar Bibliotecarios
+      description: Retorna el catálogo completo de Bibliotecarios.
+      operationId: listar_bibliotecarios
+      responses:
+        '200':
+          description: Listado de Bibliotecarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaBibliotecarioResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Bibliotecarios
+      summary: Crear bibliotecario
+      description: Registra un nuevo registro en Bibliotecarios. Requiere rol de bibliotecario.
+      operationId: crear_bibliotecario
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BibliotecarioInput'
+      responses:
+        '201':
+          description: Bibliotecarios creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BibliotecarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bibliotecarios/{codigo_bibliotecario}:
+    get:
+      tags:
+      - Bibliotecarios
+      summary: Obtener bibliotecario por identificador
+      description: Consulta los detalles de un registro específico de Bibliotecarios
+        mediante su clave primaria.
+      operationId: obtener_bibliotecario
+      parameters:
+      - name: codigo_bibliotecario
+        in: path
+        required: true
+        description: Identificador (codigo_bibliotecario) del registro.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BibliotecarioResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Bibliotecarios
+      summary: Actualizar bibliotecario
+      description: Actualiza los datos de un registro en Bibliotecarios. Requiere
+        rol de bibliotecario.
+      operationId: actualizar_bibliotecario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_bibliotecario
+        in: path
+        required: true
+        description: Identificador (codigo_bibliotecario) del registro a actualizar.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BibliotecarioInput'
+      responses:
+        '200':
+          description: Bibliotecarios actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BibliotecarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Bibliotecarios
+      summary: Eliminar bibliotecario
+      description: Elimina el registro de Bibliotecarios si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_bibliotecario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_bibliotecario
+        in: path
+        required: true
+        description: Identificador (codigo_bibliotecario) del registro a eliminar.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Bibliotecarios eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/libros:
+    get:
+      tags:
+      - Libros
+      summary: Listar Libros
+      description: Retorna el catálogo completo de Libros.
+      operationId: listar_libros
+      responses:
+        '200':
+          description: Listado de Libros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaLibroResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Libros
+      summary: Crear libro
+      description: Registra un nuevo registro en Libros. Requiere rol de bibliotecario.
+      operationId: crear_libro
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibroInput'
+      responses:
+        '201':
+          description: Libros creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibroResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/libros/{codigo_libro}:
+    get:
+      tags:
+      - Libros
+      summary: Obtener libro por identificador
+      description: Consulta los detalles de un registro específico de Libros mediante
+        su clave primaria.
+      operationId: obtener_libro
+      parameters:
+      - name: codigo_libro
+        in: path
+        required: true
+        description: Identificador (codigo_libro) del registro.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibroResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Libros
+      summary: Actualizar libro
+      description: Actualiza los datos de un registro en Libros. Requiere rol de bibliotecario.
+      operationId: actualizar_libro
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_libro
+        in: path
+        required: true
+        description: Identificador (codigo_libro) del registro a actualizar.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibroInput'
+      responses:
+        '200':
+          description: Libros actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibroResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Libros
+      summary: Eliminar libro
+      description: Elimina el registro de Libros si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_libro
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_libro
+        in: path
+        required: true
+        description: Identificador (codigo_libro) del registro a eliminar.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Libros eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/usuarios:
+    get:
+      tags:
+      - Usuarios
+      summary: Listar Usuarios
+      description: Retorna el catálogo completo de Usuarios.
+      operationId: listar_usuarios
+      responses:
+        '200':
+          description: Listado de Usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaUsuarioResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Usuarios
+      summary: Crear usuario
+      description: Registra un nuevo registro en Usuarios. Requiere rol de bibliotecario.
+      operationId: crear_usuario
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioInput'
+      responses:
+        '201':
+          description: Usuarios creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/usuarios/{codigo_usuario}:
+    get:
+      tags:
+      - Usuarios
+      summary: Obtener usuario por identificador
+      description: Consulta los detalles de un registro específico de Usuarios mediante
+        su clave primaria.
+      operationId: obtener_usuario
+      parameters:
+      - name: codigo_usuario
+        in: path
+        required: true
+        description: Identificador (codigo_usuario) del registro.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Usuarios
+      summary: Actualizar usuario
+      description: Actualiza los datos de un registro en Usuarios. Requiere rol de
+        bibliotecario.
+      operationId: actualizar_usuario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_usuario
+        in: path
+        required: true
+        description: Identificador (codigo_usuario) del registro a actualizar.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioInput'
+      responses:
+        '200':
+          description: Usuarios actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Usuarios
+      summary: Eliminar usuario
+      description: Elimina el registro de Usuarios si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_usuario
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_usuario
+        in: path
+        required: true
+        description: Identificador (codigo_usuario) del registro a eliminar.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Usuarios eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/direcciones:
+    get:
+      tags:
+      - Direcciones
+      summary: Listar Direcciones
+      description: Retorna el catálogo completo de Direcciones.
+      operationId: listar_direcciones
+      responses:
+        '200':
+          description: Listado de Direcciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaDireccionResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Direcciones
+      summary: Crear direccion
+      description: Registra un nuevo registro en Direcciones. Requiere estar autenticado.
+      operationId: crear_direccion
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DireccionInput'
+      responses:
+        '201':
+          description: Direcciones creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DireccionResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/direcciones/{id_direccion}:
+    get:
+      tags:
+      - Direcciones
+      summary: Obtener direccion por identificador
+      description: Consulta los detalles de un registro específico de Direcciones
+        mediante su clave primaria.
+      operationId: obtener_direccion
+      parameters:
+      - name: id_direccion
+        in: path
+        required: true
+        description: Identificador (id_direccion) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DireccionResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Direcciones
+      summary: Actualizar direccion
+      description: Actualiza los datos de un registro en Direcciones. Requiere autenticación/permisos.
+      operationId: actualizar_direccion
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_direccion
+        in: path
+        required: true
+        description: Identificador (id_direccion) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DireccionInput'
+      responses:
+        '200':
+          description: Direcciones actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DireccionResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Direcciones
+      summary: Eliminar direccion
+      description: Elimina el registro de Direcciones si no tiene dependencias asociadas.
+        Requiere autenticación.
+      operationId: eliminar_direccion
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_direccion
+        in: path
+        required: true
+        description: Identificador (id_direccion) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Direcciones eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/historial-ubicaciones:
+    get:
+      tags:
+      - Historial de Ubicaciones
+      summary: Listar Historial de Ubicaciones
+      description: Retorna el catálogo completo de Historial de Ubicaciones.
+      operationId: listar_historial_ubicaciones
+      responses:
+        '200':
+          description: Listado de Historial de Ubicaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaHistorialUbicacionResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Historial de Ubicaciones
+      summary: Crear historial ubicacion
+      description: Registra un nuevo registro en Historial de Ubicaciones. Requiere
+        rol de bibliotecario.
+      operationId: crear_historial_ubicacion
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistorialUbicacionInput'
+      responses:
+        '201':
+          description: Historial de Ubicaciones creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistorialUbicacionResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/historial-ubicaciones/{id_historial}:
+    get:
+      tags:
+      - Historial de Ubicaciones
+      summary: Obtener historial ubicacion por identificador
+      description: Consulta los detalles de un registro específico de Historial de
+        Ubicaciones mediante su clave primaria.
+      operationId: obtener_historial_ubicacion
+      parameters:
+      - name: id_historial
+        in: path
+        required: true
+        description: Identificador (id_historial) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistorialUbicacionResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Historial de Ubicaciones
+      summary: Actualizar historial ubicacion
+      description: Actualiza los datos de un registro en Historial de Ubicaciones.
+        Requiere rol de bibliotecario.
+      operationId: actualizar_historial_ubicacion
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_historial
+        in: path
+        required: true
+        description: Identificador (id_historial) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistorialUbicacionInput'
+      responses:
+        '200':
+          description: Historial de Ubicaciones actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistorialUbicacionResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Historial de Ubicaciones
+      summary: Eliminar historial ubicacion
+      description: Elimina el registro de Historial de Ubicaciones si no tiene dependencias
+        asociadas. Requiere rol bibliotecario.
+      operationId: eliminar_historial_ubicacion
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_historial
+        in: path
+        required: true
+        description: Identificador (id_historial) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Historial de Ubicaciones eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/reservas:
+    get:
+      tags:
+      - Reservas
+      summary: Listar Reservas
+      description: Retorna el catálogo completo de Reservas.
+      operationId: listar_reservas
+      responses:
+        '200':
+          description: Listado de Reservas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaReservaResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Reservas
+      summary: Crear reserva
+      description: Registra un nuevo registro en Reservas. Requiere estar autenticado.
+      operationId: crear_reserva
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '201':
+          description: Reservas creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/reservas/{codigo_reserva}:
+    get:
+      tags:
+      - Reservas
+      summary: Obtener reserva por identificador
+      description: Consulta los detalles de un registro específico de Reservas mediante
+        su clave primaria.
+      operationId: obtener_reserva
+      parameters:
+      - name: codigo_reserva
+        in: path
+        required: true
+        description: Identificador (codigo_reserva) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Reservas
+      summary: Actualizar reserva
+      description: Actualiza los datos de un registro en Reservas. Requiere autenticación/permisos.
+      operationId: actualizar_reserva
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_reserva
+        in: path
+        required: true
+        description: Identificador (codigo_reserva) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '200':
+          description: Reservas actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Reservas
+      summary: Eliminar reserva
+      description: Elimina el registro de Reservas si no tiene dependencias asociadas.
+        Requiere autenticación.
+      operationId: eliminar_reserva
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: codigo_reserva
+        in: path
+        required: true
+        description: Identificador (codigo_reserva) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Reservas eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/prestamos:
+    get:
+      tags:
+      - Préstamos
+      summary: Listar Préstamos
+      description: Retorna el catálogo completo de Préstamos.
+      operationId: listar_prestamos
+      responses:
+        '200':
+          description: Listado de Préstamos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaPrestamoResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Préstamos
+      summary: Crear prestamo
+      description: Registra un nuevo registro en Préstamos. Requiere rol de bibliotecario.
+      operationId: crear_prestamo
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrestamoInput'
+      responses:
+        '201':
+          description: Préstamos creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrestamoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/prestamos/{id_prestamo}:
+    get:
+      tags:
+      - Préstamos
+      summary: Obtener prestamo por identificador
+      description: Consulta los detalles de un registro específico de Préstamos mediante
+        su clave primaria.
+      operationId: obtener_prestamo
+      parameters:
+      - name: id_prestamo
+        in: path
+        required: true
+        description: Identificador (id_prestamo) del registro.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Registro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrestamoResponse'
+        '404':
+          description: Registro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Préstamos
+      summary: Actualizar prestamo
+      description: Actualiza los datos de un registro en Préstamos. Requiere rol de
+        bibliotecario.
+      operationId: actualizar_prestamo
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_prestamo
+        in: path
+        required: true
+        description: Identificador (id_prestamo) del registro a actualizar.
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrestamoInput'
+      responses:
+        '200':
+          description: Préstamos actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrestamoResponse'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Préstamos
+      summary: Eliminar prestamo
+      description: Elimina el registro de Préstamos si no tiene dependencias asociadas.
+        Requiere rol bibliotecario.
+      operationId: eliminar_prestamo
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id_prestamo
+        in: path
+        required: true
+        description: Identificador (id_prestamo) del registro a eliminar.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Préstamos eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+        '400':
+          description: Datos inválidos o error de integridad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token no provisto o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso restringido (requiere rol bibliotecario)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/libros/{codigo_libro}/disponibilidad:
+    get:
+      tags:
+      - Libros
+      summary: Consultar disponibilidad en tiempo real de un libro
+      description: Verifica si el ejemplar está actualmente prestado, la fecha estimada
+        de retorno y el número de reservas en cola.
+      operationId: consultarDisponibilidadLibro
+      parameters:
+      - name: codigo_libro
+        in: path
+        required: true
+        description: Código identificador del libro
+        schema:
+          type: string
+          example: LIB_001
+      responses:
+        '200':
+          description: Estado de disponibilidad del libro
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  codigo_libro:
+                    type: string
+                    example: LIB_001
+                  titulo_libro:
+                    type: string
+                    example: Cien Años de Soledad
+                  disponible:
+                    type: boolean
+                    example: true
+                  prestamo_activo:
+                    type: object
+                    nullable: true
+                  total_reservas_en_cola:
+                    type: integer
+                    example: 0
+        '404':
+          description: Libro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido en /api/auth/login o /api/auth/registro.
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          example: Mensaje de error descriptivo
+        detalle:
+          type: string
+          example: Detalle técnico o restricción violada
+        mensaje:
+          type: string
+          example: Mensaje informativo
+    MensajeRespuesta:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Operación completada exitosamente
+    RegistroUsuarioRequest:
+      type: object
+      required:
+      - Codigo_Usuario
+      - Nombre_Usuario
+      - Email_Usuario
+      - Password
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Nombre_Usuario:
+          type: string
+          example: Carlos Gomez
+        Email_Usuario:
+          type: string
+          format: email
+          example: carlos.gomez@correo.edu.co
+        Password:
+          type: string
+          format: password
+          example: claveSegura123
+        Telefono_Usuario:
+          type: string
+          example: '3001234567'
+        ID_Tipo_Usuario:
+          type: integer
+          example: 1
+        ID_Facultad:
+          type: integer
+          example: 1
+    RegistroBibliotecarioRequest:
+      type: object
+      required:
+      - Codigo_Bibliotecario
+      - Nombre_Bibliotecario
+      - Email_Bibliotecario
+      - Password
+      properties:
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_2026_01
+        Nombre_Bibliotecario:
+          type: string
+          example: Laura Restrepo
+        Email_Bibliotecario:
+          type: string
+          format: email
+          example: laura.restrepo@correo.edu.co
+        Password:
+          type: string
+          format: password
+          example: adminPass123
+        ID_Turno:
+          type: integer
+          example: 10012
+    LoginRequest:
+      type: object
+      required:
+      - Password
+      properties:
+        identificador:
+          type: string
+          example: carlos.gomez@correo.edu.co
+        Email_Usuario:
+          type: string
+          example: carlos.gomez@correo.edu.co
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Password:
+          type: string
+          format: password
+          example: claveSegura123
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        tipo_token:
+          type: string
+          example: Bearer
+        rol:
+          type: string
+          example: usuario
+        usuario:
+          type: object
+        mensaje:
+          type: string
+          example: Autenticación exitosa
+    OpcionesRegistroResponse:
+      type: object
+      properties:
+        tipos_usuario:
+          type: array
+          items:
+            type: object
+        facultades:
+          type: array
+          items:
+            type: object
+        turnos:
+          type: array
+          items:
+            type: object
+    CacheStats:
+      type: object
+      properties:
+        cache_habilitado:
+          type: boolean
+          example: true
+        entradas_activas:
+          type: integer
+          example: 14
+        total_consultas:
+          type: integer
+          example: 150
+        aciertos_hits:
+          type: integer
+          example: 138
+        fallos_misses:
+          type: integer
+          example: 12
+        tasa_aciertos_pct:
+          type: number
+          example: 92.0
+        total_invalidaciones:
+          type: integer
+          example: 5
+        claves_almacenadas:
+          type: array
+          items:
+            type: string
+    Pais:
+      type: object
+      properties:
+        ID_Pais:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Pais:
+          type: string
+          example: Colombia
+    PaisInput:
+      type: object
+      properties:
+        Nombre_Pais:
+          type: string
+          example: Colombia
+      required:
+      - Nombre_Pais
+    ListaPaisResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        paises:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pais'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pais'
+    PaisResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Paises procesado correctamente
+        pais:
+          $ref: '#/components/schemas/Pais'
+        dato:
+          $ref: '#/components/schemas/Pais'
+    Idioma:
+      type: object
+      properties:
+        ID_Idioma:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Idioma:
+          type: string
+          example: Español
+    IdiomaInput:
+      type: object
+      properties:
+        Nombre_Idioma:
+          type: string
+          example: Español
+      required:
+      - Nombre_Idioma
+    ListaIdiomaResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        idiomas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Idioma'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Idioma'
+    IdiomaResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Idiomas procesado correctamente
+        idioma:
+          $ref: '#/components/schemas/Idioma'
+        dato:
+          $ref: '#/components/schemas/Idioma'
+    Editorial:
+      type: object
+      properties:
+        ID_Editorial:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Editorial:
+          type: string
+          example: Editorial Planeta
+    EditorialInput:
+      type: object
+      properties:
+        Nombre_Editorial:
+          type: string
+          example: Editorial Planeta
+      required:
+      - Nombre_Editorial
+    ListaEditorialResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        editoriales:
+          type: array
+          items:
+            $ref: '#/components/schemas/Editorial'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Editorial'
+    EditorialResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Editoriales procesado correctamente
+        editorial:
+          $ref: '#/components/schemas/Editorial'
+        dato:
+          $ref: '#/components/schemas/Editorial'
+    EstadoFisico:
+      type: object
+      properties:
+        ID_Estado_Fisico:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Estado:
+          type: string
+          example: Excelente
+    EstadoFisicoInput:
+      type: object
+      properties:
+        Nombre_Estado:
+          type: string
+          example: Excelente
+      required:
+      - Nombre_Estado
+    ListaEstadoFisicoResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        estados_fisicos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoFisico'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoFisico'
+    EstadoFisicoResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Estados Físicos procesado correctamente
+        estado_fisico:
+          $ref: '#/components/schemas/EstadoFisico'
+        dato:
+          $ref: '#/components/schemas/EstadoFisico'
+    Facultad:
+      type: object
+      properties:
+        ID_Facultad:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Facultad:
+          type: string
+          example: Ingeniería
+    FacultadInput:
+      type: object
+      properties:
+        Nombre_Facultad:
+          type: string
+          example: Ingeniería
+      required:
+      - Nombre_Facultad
+    ListaFacultadResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        facultades:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facultad'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facultad'
+    FacultadResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Facultades procesado correctamente
+        facultad:
+          $ref: '#/components/schemas/Facultad'
+        dato:
+          $ref: '#/components/schemas/Facultad'
+    TipoUsuario:
+      type: object
+      properties:
+        ID_Tipo_Usuario:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Tipo:
+          type: string
+          example: Estudiante Pregrado
+    TipoUsuarioInput:
+      type: object
+      properties:
+        Nombre_Tipo:
+          type: string
+          example: Estudiante Pregrado
+      required:
+      - Nombre_Tipo
+    ListaTipoUsuarioResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        tipos_usuario:
+          type: array
+          items:
+            $ref: '#/components/schemas/TipoUsuario'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/TipoUsuario'
+    TipoUsuarioResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Tipos de Usuario procesado correctamente
+        tipo_usuario:
+          $ref: '#/components/schemas/TipoUsuario'
+        dato:
+          $ref: '#/components/schemas/TipoUsuario'
+    Turno:
+      type: object
+      properties:
+        ID_Turno:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Turno:
+          type: string
+          example: Mañana (07:00 - 15:00)
+    TurnoInput:
+      type: object
+      properties:
+        Nombre_Turno:
+          type: string
+          example: Mañana (07:00 - 15:00)
+      required:
+      - Nombre_Turno
+    ListaTurnoResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        turnos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Turno'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Turno'
+    TurnoResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Turnos procesado correctamente
+        turno:
+          $ref: '#/components/schemas/Turno'
+        dato:
+          $ref: '#/components/schemas/Turno'
+    EstadoReserva:
+      type: object
+      properties:
+        ID_Estado_Reserva:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Estado:
+          type: string
+          example: En Cola
+    EstadoReservaInput:
+      type: object
+      properties:
+        Nombre_Estado:
+          type: string
+          example: En Cola
+      required:
+      - Nombre_Estado
+    ListaEstadoReservaResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        estados_reserva:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoReserva'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoReserva'
+    EstadoReservaResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Estados de Reserva procesado correctamente
+        estado_reserva:
+          $ref: '#/components/schemas/EstadoReserva'
+        dato:
+          $ref: '#/components/schemas/EstadoReserva'
+    EstadoPrestamo:
+      type: object
+      properties:
+        ID_Estado_Prestamo:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Estado:
+          type: string
+          example: Activo
+    EstadoPrestamoInput:
+      type: object
+      properties:
+        Nombre_Estado:
+          type: string
+          example: Activo
+      required:
+      - Nombre_Estado
+    ListaEstadoPrestamoResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        estados_prestamo:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoPrestamo'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstadoPrestamo'
+    EstadoPrestamoResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Estados de Préstamo procesado correctamente
+        estado_prestamo:
+          $ref: '#/components/schemas/EstadoPrestamo'
+        dato:
+          $ref: '#/components/schemas/EstadoPrestamo'
+    Ciudad:
+      type: object
+      properties:
+        ID_Ciudad:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Ciudad:
+          type: string
+          example: Bogotá
+    CiudadInput:
+      type: object
+      properties:
+        Nombre_Ciudad:
+          type: string
+          example: Bogotá
+      required:
+      - Nombre_Ciudad
+    ListaCiudadResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        ciudades:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ciudad'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ciudad'
+    CiudadResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Ciudades procesado correctamente
+        ciudad:
+          $ref: '#/components/schemas/Ciudad'
+        dato:
+          $ref: '#/components/schemas/Ciudad'
+    Categoria:
+      type: object
+      properties:
+        ID_Categoria:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Categoria:
+          type: string
+          example: Programación Web
+        Nivel:
+          type: integer
+          example: 2
+    CategoriaInput:
+      type: object
+      properties:
+        Nombre_Categoria:
+          type: string
+          example: Programación Web
+        Nivel:
+          type: integer
+          example: 2
+      required:
+      - Nombre_Categoria
+    ListaCategoriaResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        categorias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Categoria'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Categoria'
+    CategoriaResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Categorías procesado correctamente
+        categoria:
+          $ref: '#/components/schemas/Categoria'
+        dato:
+          $ref: '#/components/schemas/Categoria'
+    Autor:
+      type: object
+      properties:
+        ID_Autor:
+          type: integer
+          readOnly: true
+          example: 1
+        Nombre_Autor:
+          type: string
+          example: Gabriel García Márquez
+        Bibliografia:
+          type: string
+          example: Premio Nobel de Literatura 1982
+        ID_Pais:
+          type: integer
+          example: 1
+        Pais:
+          type: string
+          example: Colombia
+    AutorInput:
+      type: object
+      properties:
+        Nombre_Autor:
+          type: string
+          example: Gabriel García Márquez
+        Bibliografia:
+          type: string
+          example: Premio Nobel de Literatura 1982
+        ID_Pais:
+          type: integer
+          example: 1
+      required:
+      - Nombre_Autor
+    ListaAutorResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        autores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Autor'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Autor'
+    AutorResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Autores procesado correctamente
+        autor:
+          $ref: '#/components/schemas/Autor'
+        dato:
+          $ref: '#/components/schemas/Autor'
+    Bibliotecario:
+      type: object
+      properties:
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Nombre_Bibliotecario:
+          type: string
+          example: Ana Morales
+        Email_Bibliotecario:
+          type: string
+          format: email
+          example: ana.morales@correo.edu.co
+        Activo:
+          type: boolean
+          example: true
+        Fecha_Registro:
+          type: string
+          format: date-time
+          example: '2026-01-15T08:00:00'
+        ID_Turno:
+          type: integer
+          example: 1
+        Turno:
+          type: string
+          example: Mañana
+    BibliotecarioInput:
+      type: object
+      properties:
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Nombre_Bibliotecario:
+          type: string
+          example: Ana Morales
+        Email_Bibliotecario:
+          type: string
+          format: email
+          example: ana.morales@correo.edu.co
+        Password:
+          type: string
+          format: password
+          example: claveBibliotecario123
+        Activo:
+          type: boolean
+          example: true
+        ID_Turno:
+          type: integer
+          example: 1
+      required:
+      - Codigo_Bibliotecario
+      - Nombre_Bibliotecario
+      - Email_Bibliotecario
+      - Password
+    ListaBibliotecarioResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        bibliotecarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bibliotecario'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bibliotecario'
+    BibliotecarioResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Bibliotecarios procesado correctamente
+        bibliotecario:
+          $ref: '#/components/schemas/Bibliotecario'
+        dato:
+          $ref: '#/components/schemas/Bibliotecario'
+    Libro:
+      type: object
+      properties:
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Titulo_Libro:
+          type: string
+          example: Cien Años de Soledad
+        Isbn_Libro:
+          type: string
+          example: 978-0307474728
+        Edicion:
+          type: string
+          example: 1ra Edición Conmemorativa
+        Anio_Publicacion:
+          type: integer
+          example: 1967
+        Fecha_Ingreso:
+          type: string
+          format: date-time
+          example: '2026-02-10T10:00:00'
+        ID_Editorial:
+          type: integer
+          example: 1
+        Editorial:
+          type: string
+          example: Sudamericana
+        ID_Idioma:
+          type: integer
+          example: 1
+        Idioma:
+          type: string
+          example: Español
+        ID_Estado_Fisico:
+          type: integer
+          example: 1
+        Estado_Fisico:
+          type: string
+          example: Excelente
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Bibliotecario:
+          type: string
+          example: Ana Morales
+        autores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Autor'
+        categorias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Categoria'
+    LibroInput:
+      type: object
+      properties:
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Titulo_Libro:
+          type: string
+          example: Cien Años de Soledad
+        Isbn_Libro:
+          type: string
+          example: 978-0307474728
+        Edicion:
+          type: string
+          example: 1ra Edición
+        Anio_Publicacion:
+          type: integer
+          example: 1967
+        ID_Editorial:
+          type: integer
+          example: 1
+        ID_Idioma:
+          type: integer
+          example: 1
+        ID_Estado_Fisico:
+          type: integer
+          example: 1
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        autores_ids:
+          type: array
+          items:
+            type: integer
+          example:
+          - 1
+        categorias_ids:
+          type: array
+          items:
+            type: integer
+          example:
+          - 1
+      required:
+      - Codigo_Libro
+      - Titulo_Libro
+    ListaLibroResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        libros:
+          type: array
+          items:
+            $ref: '#/components/schemas/Libro'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Libro'
+    LibroResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Libros procesado correctamente
+        libro:
+          $ref: '#/components/schemas/Libro'
+        dato:
+          $ref: '#/components/schemas/Libro'
+    Usuario:
+      type: object
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Nombre_Usuario:
+          type: string
+          example: Carlos Gomez
+        Email_Usuario:
+          type: string
+          format: email
+          example: carlos.gomez@correo.edu.co
+        Telefono_Usuario:
+          type: string
+          example: '3001234567'
+        Prestamos_Activos:
+          type: integer
+          example: 0
+        Limite_Prestamos:
+          type: integer
+          example: 3
+        Activo:
+          type: boolean
+          example: true
+        Fecha_Registro:
+          type: string
+          format: date-time
+          example: '2026-03-01T09:00:00'
+        ID_Tipo_Usuario:
+          type: integer
+          example: 1
+        Tipo_Usuario:
+          type: string
+          example: Estudiante Pregrado
+        ID_Facultad:
+          type: integer
+          example: 1
+        Facultad:
+          type: string
+          example: Ingeniería
+    UsuarioInput:
+      type: object
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Nombre_Usuario:
+          type: string
+          example: Carlos Gomez
+        Email_Usuario:
+          type: string
+          format: email
+          example: carlos.gomez@correo.edu.co
+        Password:
+          type: string
+          format: password
+          example: claveUsuario123
+        Telefono_Usuario:
+          type: string
+          example: '3001234567'
+        Limite_Prestamos:
+          type: integer
+          example: 3
+        Activo:
+          type: boolean
+          example: true
+        ID_Tipo_Usuario:
+          type: integer
+          example: 1
+        ID_Facultad:
+          type: integer
+          example: 1
+      required:
+      - Codigo_Usuario
+      - Nombre_Usuario
+      - Email_Usuario
+      - Password
+    ListaUsuarioResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        usuarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/Usuario'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Usuario'
+    UsuarioResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Usuarios procesado correctamente
+        usuario:
+          $ref: '#/components/schemas/Usuario'
+        dato:
+          $ref: '#/components/schemas/Usuario'
+    Direccion:
+      type: object
+      properties:
+        ID_Direccion:
+          type: integer
+          readOnly: true
+          example: 1
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Usuario:
+          type: string
+          example: Carlos Gomez
+        Calle_Avenida:
+          type: string
+          example: 'Carrera 45 # 26-85'
+        Numero:
+          type: string
+          example: Apto 302
+        Barrio:
+          type: string
+          example: Ciudad Universitaria
+        ID_Ciudad:
+          type: integer
+          example: 1
+        Ciudad:
+          type: string
+          example: Bogotá
+    DireccionInput:
+      type: object
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Calle_Avenida:
+          type: string
+          example: 'Carrera 45 # 26-85'
+        Numero:
+          type: string
+          example: Apto 302
+        Barrio:
+          type: string
+          example: Ciudad Universitaria
+        ID_Ciudad:
+          type: integer
+          example: 1
+      required:
+      - Codigo_Usuario
+    ListaDireccionResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        direcciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Direccion'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Direccion'
+    DireccionResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Direcciones procesado correctamente
+        direccion:
+          $ref: '#/components/schemas/Direccion'
+        dato:
+          $ref: '#/components/schemas/Direccion'
+    HistorialUbicacion:
+      type: object
+      properties:
+        ID_Historial:
+          type: integer
+          readOnly: true
+          example: 1
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Libro:
+          type: string
+          example: Cien Años de Soledad
+        Estante_Ubicacion:
+          type: string
+          example: Estante A-3 Nivel 2
+        Fecha_Asignacion:
+          type: string
+          format: date
+          example: '2026-02-15'
+    HistorialUbicacionInput:
+      type: object
+      properties:
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Estante_Ubicacion:
+          type: string
+          example: Estante A-3 Nivel 2
+        Fecha_Asignacion:
+          type: string
+          format: date
+          example: '2026-02-15'
+      required:
+      - Codigo_Libro
+      - Estante_Ubicacion
+    ListaHistorialUbicacionResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        historial_ubicaciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistorialUbicacion'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistorialUbicacion'
+    HistorialUbicacionResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Historial de Ubicaciones procesado correctamente
+        historial_ubicacion:
+          $ref: '#/components/schemas/HistorialUbicacion'
+        dato:
+          $ref: '#/components/schemas/HistorialUbicacion'
+    Reserva:
+      type: object
+      properties:
+        Codigo_Reserva:
+          type: integer
+          readOnly: true
+          example: 1
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Usuario:
+          type: string
+          example: Carlos Gomez
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Libro:
+          type: string
+          example: Cien Años de Soledad
+        Fecha_Reserva:
+          type: string
+          format: date-time
+          example: '2026-03-05T14:30:00'
+        Posicion_Cola_Reserva:
+          type: integer
+          example: 1
+        ID_Estado_Reserva:
+          type: integer
+          example: 1
+        Estado_Reserva:
+          type: string
+          example: En Cola
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Bibliotecario:
+          type: string
+          example: Ana Morales
+    ReservaInput:
+      type: object
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Fecha_Reserva:
+          type: string
+          format: date-time
+          example: '2026-03-05T14:30:00'
+        Posicion_Cola_Reserva:
+          type: integer
+          example: 1
+        ID_Estado_Reserva:
+          type: integer
+          example: 1
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+      required:
+      - Codigo_Usuario
+      - Codigo_Libro
+    ListaReservaResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        reservas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reserva'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reserva'
+    ReservaResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Reservas procesado correctamente
+        reserva:
+          $ref: '#/components/schemas/Reserva'
+        dato:
+          $ref: '#/components/schemas/Reserva'
+    Prestamo:
+      type: object
+      properties:
+        ID_Prestamo:
+          type: integer
+          readOnly: true
+          example: 1
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Usuario:
+          type: string
+          example: Carlos Gomez
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Libro:
+          type: string
+          example: Cien Años de Soledad
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Bibliotecario:
+          type: string
+          example: Ana Morales
+        Fecha_Prestamo:
+          type: string
+          format: date
+          example: '2026-03-01'
+        Fecha_Dev_Prevista:
+          type: string
+          format: date
+          example: '2026-03-15'
+        Fecha_Dev_Real:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        Dia_Retraso:
+          type: integer
+          example: 0
+        Multa_Calculada:
+          type: number
+          format: float
+          example: 0.0
+        Numero_Renovaciones:
+          type: integer
+          example: 0
+        ID_Estado_Prestamo:
+          type: integer
+          example: 1
+        Estado_Prestamo:
+          type: string
+          example: Activo
+    PrestamoInput:
+      type: object
+      properties:
+        Codigo_Usuario:
+          type: string
+          example: USR_2026_01
+        Codigo_Libro:
+          type: string
+          example: LIB_001
+        Codigo_Bibliotecario:
+          type: string
+          example: BIB_001
+        Fecha_Prestamo:
+          type: string
+          format: date
+          example: '2026-03-01'
+        Fecha_Dev_Prevista:
+          type: string
+          format: date
+          example: '2026-03-15'
+        Fecha_Dev_Real:
+          type: string
+          format: date
+          example: '2026-03-14'
+        Dia_Retraso:
+          type: integer
+          example: 0
+        Multa_Calculada:
+          type: number
+          format: float
+          example: 0.0
+        Numero_Renovaciones:
+          type: integer
+          example: 0
+        ID_Estado_Prestamo:
+          type: integer
+          example: 1
+      required:
+      - Codigo_Usuario
+      - Codigo_Libro
+    ListaPrestamoResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 10
+        prestamos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prestamo'
+        datos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prestamo'
+    PrestamoResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+          example: Préstamos procesado correctamente
+        prestamo:
+          $ref: '#/components/schemas/Prestamo'
+        dato:
+          $ref: '#/components/schemas/Prestamo'
